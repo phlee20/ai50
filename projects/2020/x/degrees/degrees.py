@@ -91,6 +91,9 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
+    # Keep track of number of states explored
+    num_explored = 0
+
     # Initialize frontier to the source
     start = Node(state=source, parent=None, action=None)
     frontier = QueueFrontier()
@@ -104,10 +107,12 @@ def shortest_path(source, target):
 
         # If nothing left in frontier, then no connection
         if frontier.empty():
+            print(f"States explored: {num_explored}")
             return None
         
         # Choose a node from the frontier
         node = frontier.remove()
+        num_explored += 1
 
         # If node is in the goal, then we have a solution
         if node.state == target:
@@ -116,6 +121,7 @@ def shortest_path(source, target):
                 path.append((node.action, node.state))
                 node = node.parent
             path.reverse()
+            print(f"States explored: {num_explored}")
             return path
 
         # Mark node as explored
