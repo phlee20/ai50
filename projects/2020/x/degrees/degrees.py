@@ -91,13 +91,14 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
-    # Keep track of number of states explored
-    num_explored = 0
-
     # Initialize frontier to the source
     start = Node(state=source, parent=None, action=None)
     frontier = QueueFrontier()
     frontier.add(start)
+
+    # Account for same source and target
+    if source == target:
+        return []
 
     # Initialize an empty explored set
     explored = set()
@@ -107,22 +108,10 @@ def shortest_path(source, target):
 
         # If nothing left in frontier, then no connection
         if frontier.empty():
-            print(f"States explored: {num_explored}")
             return None
         
         # Choose a node from the frontier
         node = frontier.remove()
-        num_explored += 1
-
-        # If node is in the goal, then we have a solution
-        if node.state == target:
-            path = []
-            while node.parent is not None:
-                path.append((node.action, node.state))
-                node = node.parent
-            path.reverse()
-            print(f"States explored: {num_explored}")
-            return path
 
         # Mark node as explored
         explored.add(node.state)
@@ -131,8 +120,18 @@ def shortest_path(source, target):
         for movie, person in neighbors_for_person(node.state):
             if not frontier.contains_state(person) and person not in explored:
                 child = Node(state=person, parent=node, action=movie)
-                frontier.add(child)
 
+                # If node is in the goal, then we have a solution
+                if child.state == target:
+                    path = []
+                    while child.parent is not None:
+                        path.append((child.action, child.state))
+                        child = child.parent
+                    path.reverse()
+                    return path
+
+                # Else add to frontier    
+                frontier.add(child)
 
 
 def person_id_for_name(name):
