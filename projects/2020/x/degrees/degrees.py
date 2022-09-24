@@ -117,6 +117,10 @@ def shortest_path(source, target):
         # Choose a node from the frontier
         node = frontier.remove()
 
+        # Mark node as explored
+        explored.add(node.state)
+        num_explored += 1
+
         # Add neighbours to frontier
         for movie, person in neighbors_for_person(node.state):
             if not frontier.contains_state(person) and person not in explored:
@@ -131,10 +135,6 @@ def shortest_path(source, target):
                     path.reverse()
                     print(f"States explored: {num_explored}")
                     return path
-                
-                # Mark node as explored
-                explored.add(node.state)
-                num_explored += 1
 
                 # Else add to frontier    
                 frontier.add(child)
