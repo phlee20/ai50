@@ -14,9 +14,9 @@ def initial_state():
     """
     Returns starting state of the board.
     """
-    return [[X, O, X],
-            [O, O, O],
-            [X, X, EMPTY]]
+    return [[EMPTY, EMPTY, EMPTY],
+            [EMPTY, EMPTY, EMPTY],
+            [EMPTY, EMPTY, EMPTY]]
 
 
 def player(board):
@@ -59,16 +59,6 @@ def winner(board):
     """
     Returns the winner of the game, if there is one.
     """
-
-
-
-def terminal(board):
-    """
-    Returns True if game is over, False otherwise.
-    """
-    # Check if board is full
-    full = EMPTY in (square for row in board for square in row)
-
     # Get last player played
     if player(board) == X:
         last = O
@@ -78,26 +68,73 @@ def terminal(board):
     # Check rows and columns
     for i in range(len(board)):
         if all(board[i][j] == last for j in range(len(board))):
-            return True
+            return last
         elif all(board[j][i] == last for j in range(len(board))):
-            return True
+            return last
     
-    # Check diagonal
+    # Check diagonals
     if all(board[i][i] == last for i in range(len(board))):
-        return True
+        return last
     elif board[0][2] == board[1][1] == board[2][0] == last:
+        return last
+
+
+def terminal(board):
+    """
+    Returns True if game is over, False otherwise.
+    """
+    # Check if board is full or there is a winner
+    spots = EMPTY in (square for row in board for square in row)
+
+    if not spots or winner(board) in [X, O]:
         return True
+    
+    return False
 
 
 def utility(board):
     """
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
     """
-    raise NotImplementedError
+    if winner(board) == X:
+        return 1
+    elif winner(board) == O:
+        return -1
+    
+    return 0
 
 
 def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
-    raise NotImplementedError
+    if not terminal(board):
+        moves = []
+        if player(board) == X:
+            for action in actions(board):
+                moves.append((min_value(result(board, action)), action))
+            moves.sort(reverse=True)
+        else:
+            for action in actions(board):
+                moves.append((max_value(result(board, action)), action))
+            moves.sort()
+        
+        return moves[0][1]
+
+
+def max_value(board):
+    v = -2
+    if terminal(board):
+        return utility(board)
+    for action in actions(board):
+        v = max(v, min_value(result(board, action)))
+    return v
+
+
+def min_value(board):
+    v = 2
+    if terminal(board):
+        return utility(board)
+    for action in actions(board):
+        v = min(v, max_value(result(board, action)))
+    return v
