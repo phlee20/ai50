@@ -127,7 +127,12 @@ def max_value(board):
     if terminal(board):
         return utility(board)
     for action in actions(board):
-        v = max(v, min_value(result(board, action)))
+        x = min_value(result(board, action))
+        
+        # Alpha-beta pruning
+        if x < v:
+            break
+        v = x
     return v
 
 
@@ -136,5 +141,10 @@ def min_value(board):
     if terminal(board):
         return utility(board)
     for action in actions(board):
-        v = min(v, max_value(result(board, action)))
+        x = max_value(result(board, action))
+
+        # Alpha-beta pruning
+        if x > v:
+            break
+        v = x
     return v
