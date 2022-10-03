@@ -223,49 +223,41 @@ class MinesweeperAI():
         # Add to knowledge base if sentence is undetermined
         else: 
             sentence = Sentence(neighbours, count)
-            print(f"Adding knowledge: {sentence}")
             self.knowledge.append(sentence)
         
-        print(f"Cell: {cell}, Count: {count}, Neighbours: {len(neighbours)}")
-        print(f"Known mines: {self.mines}")
-
-        
-        # LOOP this
         # Mark additional cells from knowledge base as safe or as mines
         for sentence in self.knowledge:
             for square in sentence.cells.copy():
 
                 if square in self.mines:
                     self.mark_mine(square)
-                if sentence.count == 0:
-                    for safe in sentence.cells.copy():
-                        self.mark_safe(safe)
-
                 if square in self.safes:
                     self.mark_safe(square)
-                if len(sentence.cells) == sentence.count:
-                    for mine in sentence.cells.copy():
-                        self.mark_mine(mine)
 
-        """
-        # LOOP this
+        for sentence in self.knowledge:
+            if len(sentence.cells) == sentence.count:
+                for mine in sentence.cells.copy():
+                    self.mark_mine(mine)
+        
+        for sentence in self.knowledge:
+            if sentence.count == 0:
+                for safe in sentence.cells.copy():
+                    self.mark_safe(safe)
+            
+            
+        # Remove sentences that are empty
+        for sentence in self.knowledge.copy():           
+            if len(sentence.cells) == 0:
+                self.knowledge.remove(sentence)
+
         # Add new sentences inferred from existing knowledge
-        while True:
-            for first in self.knowledge:
-                for second in self.knowledge:
-                    if first.cells != second.cells:
-                        if first.cells.issubset(second.cells):
-                            sentence = Sentence(second.cells - first.cells, second.count - first.count)
-                            self.knowledge.append(sentence)
-
-                        elif second.cells.issubset(first.cells):
-                            sentence = Sentence(first.cells - second.cells, first.count - second.count)
-                            self.knowledge.append(sentence)
-                        
-                        else:
-                            break
-                        """
-
+        for first in self.knowledge.copy():
+            for second in self.knowledge.copy():
+                if first.cells != second.cells:
+                    if first.cells.issubset(second.cells):
+                        sentence = Sentence(second.cells - first.cells, second.count - first.count)
+                        self.knowledge.append(sentence)
+        
     def make_safe_move(self):
         """
         Returns a safe cell to choose on the Minesweeper board.
@@ -286,10 +278,14 @@ class MinesweeperAI():
             1) have not already been chosen, and
             2) are not known to be mines
         """
+        moves = set()
         while True:
-            i = random.randrange(self.height)
-            j = random.randrange(self.width)
-            if (i, j) not in itertools.chain(self.mines, self.moves_made):
-                return (i, j)
+            for i in range(self.height):
+                for j in range(self.width):
+                    if (i, j) not in itertools.chain(self.mines, self.moves_made):
+                        moves.add((i,j))
+            
+            if len(moves) != 0:
+                return moves.pop()
             else:
                 return None
