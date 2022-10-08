@@ -57,8 +57,21 @@ def transition_model(corpus, page, damping_factor):
     linked to by `page`. With probability `1 - damping_factor`, choose
     a link at random chosen from all pages in the corpus.
     """
-    raise NotImplementedError
+    pd = {}
 
+    for key in corpus:
+        
+        # Equal probability distribution for no outgoing links 
+        if corpus[page] == "":
+            pd[key] == 1 / len(corpus)
+        
+        # Split damping factor across links
+        elif key in corpus[page]:
+            pd[key] = damping_factor / len(corpus[page]) + (1 - damping_factor) / len(corpus)
+        else:
+            pd[key] = (1 - damping_factor) / len(corpus)
+
+    return pd
 
 def sample_pagerank(corpus, damping_factor, n):
     """
@@ -69,8 +82,26 @@ def sample_pagerank(corpus, damping_factor, n):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    # Initialize pagerank dictionary
+    pagerank = {key: 0 for key in corpus.keys()}
 
+    # Randomly select start page
+    page = random.choice(list(corpus))
+    
+    for i in range(n):
+        pd = transition_model(corpus, page, damping_factor)
+
+        # Choose next page based on probability distribution
+        weight = list(pd.values())
+        page = random.choices(list(corpus), weights=weight, k=1)[0]
+        
+        # Add to pagerank
+        pagerank[page] += 1
+
+    # Divide sample results by total
+    pagerank = {key: value / n for key, value in pagerank.items()}
+
+    return pagerank
 
 def iterate_pagerank(corpus, damping_factor):
     """
@@ -81,7 +112,44 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-    raise NotImplementedError
+    # Initialize pagerank dictionary
+    n = len(corpus.keys())
+    pagerank = {key: 1 / n for key in corpus.keys()}
+
+    while True:
+
+        # Initialize threshold counter
+        threshold = 0
+
+        for p in corpus:
+
+            # Initialize second condition sum
+            d_sum = 0
+            
+            for i in corpus:
+                
+                # Check for page with no links
+                if len(corpus[i]) == 0:
+                    d_sum += pagerank[i] / len(corpus)
+                
+                # Check if page p is in page i
+                elif p in corpus[i]:
+                    d_sum += pagerank[i] / len(corpus[i])
+                
+            # Calculate new pagerank
+            new_pagerank = (1 - damping_factor) / n + damping_factor * d_sum
+            
+            # Check for value changes under 0.001
+            if abs(new_pagerank - pagerank[p]) < 0.001:
+                threshold += 1
+            
+            # Update pagerank
+            pagerank[p] = new_pagerank
+
+        # End loop when all pagerank values are under the threshold
+        if threshold == len(corpus):
+            print(sum(pagerank.values()))
+            return pagerank
 
 
 if __name__ == "__main__":
