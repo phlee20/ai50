@@ -79,13 +79,11 @@ def main():
 
                 # Update probabilities with new joint probability
                 p = joint_probability(people, one_gene, two_genes, have_trait)
-                print(f"Joint: {p}")
-
                 update(probabilities, one_gene, two_genes, have_trait, p)
 
     # Ensure probabilities sum to 1
     normalize(probabilities)
-    """
+
     # Print results
     for person in people:
         print(f"{person}:")
@@ -94,7 +92,6 @@ def main():
             for value in probabilities[person][field]:
                 p = probabilities[person][field][value]
                 print(f"    {value}: {p:.4f}")
-                """
 
 
 def load_data(filename):
