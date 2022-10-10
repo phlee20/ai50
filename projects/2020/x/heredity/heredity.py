@@ -145,12 +145,15 @@ def joint_probability(people, one_gene, two_genes, have_trait):
 
     for name in people:
         
+        # Assign values to trait and gene for indexing
         trait = True if name in have_trait else False
         gene = 2 if name in two_genes else 1 if name in one_gene else 0
         
+        # Case where no parent is known - use defined probability table
         if people[name]["mother"] is None:
             prob = PROBS["gene"][gene]
         
+        # Case where parents are known
         else:
 
             mother = 2 if people[name]["mother"] in two_genes else 1 if people[name]["mother"] in one_gene else 0
@@ -192,6 +195,7 @@ def joint_probability(people, one_gene, two_genes, have_trait):
 
                 prob = prob_mother * prob_father
             
+            # Case where gene is 1
             else:
                 
                 if (mother == 0 and father == 0) or (mother == 2 and father == 2):
@@ -206,7 +210,8 @@ def joint_probability(people, one_gene, two_genes, have_trait):
                         
                 if (mother == 1 and father == 1):
                     prob = mid * mid + mid * mid
-                
+        
+        # Calculate joint probability (gene prob * trait prob)
         joint *= prob * PROBS["trait"][gene][trait]
 
     return joint
