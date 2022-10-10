@@ -196,12 +196,14 @@ def joint_probability(people, one_gene, two_genes, have_trait):
                 
                 if (mother == 0 and father == 0) or (mother == 2 and father == 2):
                     prob = low * high + high * low
+                        
                 if (mother == 2 and father == 0) or (mother == 0 and father == 2):
                     prob = high * high + low * low
-                if (mother == 0 and father == 1) or (mother == 1 and father == 0):
+
+                if ((mother == 0 and father == 1) or (mother == 1 and father == 2) or
+                    (mother == 1 and father == 0) or (mother == 2 and father == 1)):
                     prob = high * mid + low * mid
-                if (mother == 2 and father == 1) or (mother == 1 and father == 2):
-                    prob = low * mid + high * mid
+                        
                 if (mother == 1 and father == 1):
                     prob = mid * mid + mid * mid
                 
