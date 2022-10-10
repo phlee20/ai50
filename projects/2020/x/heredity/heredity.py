@@ -145,16 +145,21 @@ def joint_probability(people, one_gene, two_genes, have_trait):
 
     for name in people:
         
-        print(name, one_gene, two_genes, have_trait)
-
         trait = True if name in have_trait else False
         gene = 2 if name in two_genes else 1 if name in one_gene else 0
         
         if people[name]["mother"] is None:
-            prob = PROBS["gene"][gene] * PROBS["trait"][gene][trait]
+            prob = PROBS["gene"][gene]
         
         else:
-            
+
+            mother = 2 if people[name]["mother"] in two_genes else 1 if people[name]["mother"] in one_gene else 0
+            father = 2 if people[name]["father"] in two_genes else 1 if people[name]["father"] in one_gene else 0
+
+            low = PROBS["mutation"]
+            mid = 0.5
+            high = 1 - PROBS["mutation"]
+
             if gene == 2:
                 if people[name]["mother"] in two_genes:
                     prob_mother = 1 - PROBS["mutation"]
@@ -168,6 +173,8 @@ def joint_probability(people, one_gene, two_genes, have_trait):
                     prob_father = 0.5
                 else:
                     prob_father = PROBS["mutation"]
+
+                prob = prob_mother * prob_father
             
             elif gene == 0:
                 if people[name]["mother"] in two_genes:
@@ -182,18 +189,23 @@ def joint_probability(people, one_gene, two_genes, have_trait):
                     prob_father = 0.5
                 else:
                     prob_father = 1 - PROBS["mutation"]
+
+                prob = prob_mother * prob_father
             
             else:
-
-                # TODO
-                prob_father = 1 - PROBS["mutation"]
-                prob_mother = 1 - PROBS["mutation"]
-
                 
-            prob = prob_mother * prob_father
-        print(prob)
-
-        joint *= prob
+                if (mother == 0 and father == 0) or (mother == 2 and father == 2):
+                    prob = low * high + high * low
+                if (mother == 2 and father == 0) or (mother == 0 and father == 2):
+                    prob = high * high + low * low
+                if (mother == 0 and father == 1) or (mother == 1 and father == 0):
+                    prob = high * mid + low * mid
+                if (mother == 2 and father == 1) or (mother == 1 and father == 2):
+                    prob = low * mid + high * mid
+                if (mother == 1 and father == 1):
+                    prob = mid * mid + mid * mid
+                
+        joint *= prob * PROBS["trait"][gene][trait]
 
     return joint
             
@@ -213,8 +225,6 @@ def update(probabilities, one_gene, two_genes, have_trait, p):
         probabilities[person]["gene"][gene] += p
         probabilities[person]["trait"][trait] += p
     
-    print(probabilities)
-
 
 def normalize(probabilities):
     """
