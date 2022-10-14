@@ -222,6 +222,10 @@ class CrosswordCreator():
         for value in self.domains[var]:
             odv[value] = 0
             for neighbor in self.crossword.neighbors(var):
+                overlap = self.crossword.overlaps[var, neighbor]
+                for y in self.domains[neighbor]:
+                    if value[overlap[0]] != y[overlap[1]]:
+                        odv[value] += 1
 
                 # Check if test value exists in neighbouring domains and if neighbouring variable is already assigned
                 if value in self.domains[neighbor] and neighbor not in assignment:
@@ -230,9 +234,10 @@ class CrosswordCreator():
                     odv[value] += 1
 
         # Sort in ascending order
-        odv_sorted_list = sorted(odv.keys(), key=lambda item: item[1])
+        odv_sorted = sorted(odv.items(), key=lambda item: item[1])
+        odv_list = [x[0] for x in odv_sorted]
 
-        return odv_sorted_list
+        return odv_list
 
     def select_unassigned_variable(self, assignment):
         """
