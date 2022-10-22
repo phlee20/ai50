@@ -15,7 +15,10 @@ V -> "smiled" | "tell" | "were"
 """
 
 NONTERMINALS = """
-S -> N V
+S -> NP VP
+
+NP -> N | Det NP
+VP -> V | V NP
 """
 
 grammar = nltk.CFG.fromstring(NONTERMINALS + TERMINALS)
@@ -45,7 +48,7 @@ def main():
     if not trees:
         print("Could not parse sentence.")
         return
-
+    """
     # Print each tree with noun phrase chunks
     for tree in trees:
         tree.pretty_print()
@@ -53,7 +56,7 @@ def main():
         print("Noun Phrase Chunks")
         for np in np_chunk(tree):
             print(" ".join(np.flatten()))
-
+"""
 
 def preprocess(sentence):
     """
@@ -62,7 +65,14 @@ def preprocess(sentence):
     and removing any word that does not contain at least one alphabetic
     character.
     """
-    raise NotImplementedError
+    words = nltk.wordpunct_tokenize(sentence)
+    
+    for word in words:
+        if not word.isalpha():
+            words.remove(word)
+
+    lowercase = [word.lower() for word in words]
+    print(lowercase)
 
 
 def np_chunk(tree):
